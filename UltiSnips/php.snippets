@@ -1,0 +1,608 @@
+global !p
+
+def getns(path, fn):
+    abspath = os.path.realpath(path)
+    m = re.search(r'(/[A-Z][A-Za-z0-9]+)+.php$', abspath)
+    ns = ''
+    if m:
+        ns = m.group().replace('/', '\\')
+        ns = ns.replace(fn, '')
+        ns = ns.strip('\\')
+
+    return ns
+
+def namespace(snip, path):
+    snip.rv = getns(path, snip.fn)
+
+def controller(snip, lowercase = False):
+    entity = snip.basename.replace('Controller', '')
+    if lowercase:
+        snip.rv = entity.lower()
+    else:
+        snip.rv = entity
+
+endglobal
+
+snippet <? "php open tag" b
+<?php
+
+$0
+endsnippet
+
+snippet vdd "php var_dump and die"
+var_dump($0); die();
+endsnippet
+
+snippet ns "php namespace" b
+namespace `!p namespace(snip, path)`;
+$0
+endsnippet
+
+snippet nc "php namespace and class or interface" b
+namespace `!p namespace(snip, path)`;
+
+`!p
+m = re.search(r'Abstract', path)
+if m:
+    snip.rv = 'abstract '
+``!p
+if re.search(r'Interface', path):
+    snip.rv = 'interface'
+elif re.search(r'Trait', path):
+    snip.rv = 'trait'
+else:
+    snip.rv = 'class'
+` `!p
+snip.rv = snip.basename
+`
+{
+	$0
+}
+endsnippet
+
+snippet __ "php constructor" b
+${1:public} function __construct($2)
+{
+	$0
+}
+endsnippet
+
+snippet sg "Setter and Getter" b
+/**
+ * @var ${3:`!p snip.rv = t[2][0:1].upper() + t[2][1:]`}
+ * 
+ * ${4}
+ */
+${1:private} $$2;
+
+public function set`!p snip.rv = t[2][0:1].upper() + t[2][1:]`(`!p
+if re.match(r'^(\\|[A-Z]).*', t[3]):
+	snip.rv = t[3] + ' '
+else:
+	snip.rv = ''
+`$$2)
+{
+	$this->$2 = $$2;
+
+	return $this;
+}
+
+public function get`!p snip.rv = t[2][0:1].upper() + t[2][1:]`()
+{
+	return $this->$2;
+}
+endsnippet
+
+snippet /** "php comment block" b
+/**
+ * $0
+ */
+endsnippet
+
+snippet pub "public function" b
+public function $1($2)
+{
+	$0
+}
+endsnippet
+
+snippet pro "protected function" b
+protected function $1($2)
+{
+	$0
+}
+endsnippet
+
+snippet pri "private function" b
+private function $1($2)
+{
+	$0
+}
+endsnippet
+
+# PHPUnit
+
+snippet test "phpunit test class" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+class `!p snip.rv = snip.basename` extends \PHPUnit_Framework_TestCase
+{
+	public function test$1()
+	{
+		$0
+	}
+}
+endsnippet
+
+snippet exp "phpunit expects" i
+expects($this->${1:once}())
+	->method('$2')
+	->with($this->equalTo($3)$4)
+	->will($this->returnValue($0));
+endsnippet
+
+# Symfony2
+
+snippet c "Symfony2 Controller" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+
+/**
+ * @Route("/${1:`!p controller(snip, True)`}")
+ */
+class `!p snip.rv = snip.basename` extends Controller
+{
+    $0
+}
+endsnippet
+
+snippet newact "Symfony2 CRUD Controller New Action" b
+/**
+ * @Route("/new", name="${1:`!p controller(snip, True)`}_new", methods={"GET", "POST"})
+ */
+public function newAction(Request $request)
+{
+	$form = $this->createForm(new ${2:`!p controller(snip)`}Type());
+
+	$form->handleRequest($request);
+	if ($form->isValid()) {
+		$${3:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`} = $form->getData();
+
+		$em = $this->get('doctrine.orm.entity_manager');
+		$em->persist($$3);
+		$em->flush();
+
+		return $this->redirect($this->generateUrl('$1_edit', ['id' => $$3->getId()]));
+	}
+
+	return $this->render('$0`!p controller(snip, True)`/new.html.twig', [
+		'$3' => $$3,
+		'form' => $form->createView(),
+	]);
+}$0
+endsnippet
+
+snippet editact "Symfony2 CRUD Controller Edit Action" b
+/**
+ * @Route("/{id}/edit", name="${1:`!p controller(snip, True)`}_edit", methods={"GET", "PUT"}, requirements={"id"="\d+"})
+ */
+public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`}, Request $request)
+{
+	$editForm = $this->createForm(new $2Type(), $$3, [
+		'action' => $this->generateUrl('$1_edit', ['id' => $$3->getId()]),
+		'method' => 'PUT',
+	]);
+	$deleteForm = $this->createDeleteForm($$3->getId());
+
+	$editForm->handleRequest($request);
+	if ($editForm->isValid()) {
+		$em = $this->get('doctrine.orm.entity_manager');
+		$em->flush();
+
+		return $this->redirect($this->generateUrl('$1_edit', ['id' => $$3->getId()]));
+	}
+
+	return $this->render('$0`!p controller(snip, True)`/edit.html.twig', [
+		'$3' => $$3,
+		'editForm' => $editForm->createView(),
+		'deleteForm' => $deleteForm->createView(),
+	]);
+}
+endsnippet
+
+snippet delact "Symfony2 CRUD Controller Delete Action" b
+/**
+ * @Route("/{id}", name="${1:`!p controller(snip, True)`}_delete", methods={"DELETE"}, requirements={"id"="\d+"})
+ */
+public function deleteAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`}, Request $request)
+{
+	$form = $this->createDeleteForm($$3->getId());
+
+	$form->handleRequest($request);
+	if ($form->isValid()) {
+		$em = $this->get('doctrine.orm.entity_manager');$0
+
+		$em->remove($$3);
+		$em->flush();
+	}
+
+	return $this->redirect($this->generateUrl('$1'));
+}
+
+/**
+ * @param mixed $id The entity id
+ *
+ * @return \Symfony\Component\Form\Form The form
+ */
+private function createDeleteForm($id)
+{
+	return $this->createFormBuilder()
+		->setAction($this->generateUrl('$1_delete', ['id' => $id]))
+		->setMethod('DELETE')
+		->getForm()
+	;
+}
+endsnippet
+
+snippet act "Symfony2 action" b
+/**
+ * @Route("${3}", name="${4}", methods={"${5:GET}"})
+ */
+public function ${1}Action(${2})
+{
+	$0
+}
+endsnippet
+
+snippet comm "Symfony2 command" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class `!p snip.rv = snip.basename` extends ContainerAwareCommand
+{
+	protected function configure()
+	{
+		$this->setName('${1}')
+			->setDescription('${2}')
+			->setDefinition([
+				new InputArgument('', InputArgument::REQUIRED, ''),
+				new InputOption('', null, InputOption::VALUE_NONE, ''),
+			]);
+	}
+
+	protected function execute(InputInterface $input, OutputInterface $output)
+	{
+	}
+}
+endsnippet
+
+snippet sub "Symfony2 subscriber" b
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class `!p snip.rv = snip.basename` implements EventSubscriberInterface
+{
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getSubscribedEvents()
+	{
+		return [];
+	}
+}
+endsnippet
+
+snippet transf "Symfony2 form data transformer" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\Exception\TransformationFailedException;
+
+class `!p snip.rv = snip.basename` implements DataTransformerInterface
+{
+	/**
+	 * {@inheritDoc}
+	 */
+	public function transform(${1})
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function reverseTransform(${2})
+	{
+	}
+}
+endsnippet
+
+snippet ev "Symfony2 event" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\EventDispatcher\Event;
+
+class `!p snip.rv = snip.basename` extends Event
+{
+}
+endsnippet
+
+snippet 30x "Symfony2 redirect"
+$this->redirect($this->generateUrl('${1}', ${2}));
+endsnippet
+
+snippet voter "Symfony2 voter" b
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+
+class `!p snip.basename` implements VoterInterface
+{
+	public function supportsAttribute($attribute)
+	{
+	}
+
+	public function supportsClass($class)
+	{
+		return true;
+	}
+
+	public function vote(TokenInterface $token, $object, array $attributes)
+	{
+		$0
+	}
+}
+endsnippet
+
+snippet compiler "Symfony2 CompilerPass" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
+
+class `!p snip.rv = snip.basename` implements CompilerPassInterface
+{
+	public function process(ContainerBuilder $container)
+	{
+		${1}
+	}
+}
+endsnippet
+
+snippet menu "Symfony2 Menu Builder" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Knp\Menu\FactoryInterface;
+
+class `!p snip.rv = snip.basename`
+{
+	public function topNav(FactoryInterface $factory, array $options)
+	{
+		$menu = $factory->createItem('root', [
+			'childrenAttributes' => [
+				'class' => 'nav navbar-nav',
+			],
+		]);
+
+		$menu->addChild('home', [
+			'route' => 'home',
+			'label' => '首页',
+		]);$0
+
+		return $menu;
+	}
+}
+endsnippet
+
+snippet form "Symfony2 Form Type" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+
+class `!p snip.rv = snip.basename` extends AbstractType
+{
+	/**
+	 * @param FormBuilderInterface $builder
+	 * @param array $options
+	 */
+	public function buildForm(FormBuilderInterface $builder, array $options)
+	{
+		$builder
+			->add('$0')
+		;
+	}
+    
+	/**
+	 * @param OptionsResolverInterface $resolver
+	 */
+	public function configureOptions(OptionsResolverInterface $resolver)
+	{
+		$resolver->setDefaults([
+			'data_class' => ''
+		]);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return '$1';
+	}
+}
+endsnippet
+
+snippet loginc "Symfony2 Login Controller" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+
+class LoginController extends Controller
+{
+	/**
+	 * @Route("/login", name="admin_login", methods={"GET"})
+	 */
+	public function loginAction()
+	{
+		$authenticationUtils = $this->get('security.authentication_utils');
+		$error = $authenticationUtils->getLastAuthenticationError();
+		$lastUsername = $authenticationUtils->getLastUsername();
+
+		return $this->render('backend/login/login.html.twig', [
+			'lastUsername' => $lastUsername,
+			'error' => $error,
+		]);
+	}
+
+	/**
+	 * @Route("/login-check", name="admin_login_check")
+	 */
+	public function loginCheckAction()
+	{
+	}
+
+	/**
+	 * @Route("/logout", name="admin_logout", methods={"GET"})
+	 */
+	public function logoutAction()
+	{
+	}
+}
+endsnippet
+
+snippet entrypoint "Symfony2 Authentication Entry Point" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
+
+class `!p snip.rv = snip.basename` implements AuthenticationEntryPointInterface
+{
+	public function start(Request $request, AuthenticationException $authException = null)
+	{
+		$0
+	}
+}
+endsnippet
+
+snippet authenticator "Symfony2 Authenticator" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\Security\Core\Authentication\SimpleFormAuthenticatorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+
+class `!p snip.rv = snip.basename` implements SimpleFormAuthenticatorInterface
+{
+    public function createToken(Request $request, $username, $password, $providerKey)
+    {
+        return new UsernamePasswordToken($username, $password, $providerKey);
+    }
+
+    public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
+    {
+        try {
+            $user = $userProvider->loadUserByUsername($token->getUsername());
+        } catch (UsernameNotFoundException $e) {
+            throw new AuthenticationException('Invalid username or password');
+        }
+
+        if ($user->getPassword() === $token->getCredentials()) {
+            return new UsernamePasswordToken($user, $user->getPassword(), $providerKey, $user->getRoles());
+        }
+
+        throw new AuthenticationException('Invalid username or password');
+    }
+
+    public function supportsToken(TokenInterface $token, $providerKey)
+    {
+        return $token instanceof UsernamePasswordToken && $token->getProviderKey() === $providerKey;
+    }
+}
+endsnippet
+
+snippet ormprep "Doctrine ORM PrePersist" b
+/**
+ * @ORM\PrePersist
+ */
+public function prePersist(LifecycleEventArgs $event)
+{
+	$0
+}
+endsnippet
+
+snippet entity "Doctrine ORM Entity" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Table()
+ * @ORM\Entity()
+ */
+class `!p snip.rv = snip.basename`
+{
+	/**
+	 * @var integer
+	 *
+	 * @ORM\Column(name="id", type="integer")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	private $id;
+
+	$0
+}
+endsnippet
+
+snippet ormpreu "Doctrine ORM PreUpdate" b
+/**
+ * @ORM\PreUpdate
+ */
+public function preUpdate(PreUpdateEventArgs $event)
+{
+	if ($event->hasChangedField('$1')) {
+		$0
+	}
+}
+endsnippet
