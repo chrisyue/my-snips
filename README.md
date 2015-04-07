@@ -6,7 +6,7 @@ On the giant of UltiSnips, these snippets can auto-detect namespace, or tell if 
 
 ![controller action](http://chrisyue-blog.qiniudn.com/controller-action.gif)
 
-Please check the file to see more details
+Please check those [snippet files](https://github.com/chrisyue/my-snips/tree/master/UltiSnips) to see more details
 
 # installation
 
