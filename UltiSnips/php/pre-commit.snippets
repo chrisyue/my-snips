@@ -1,0 +1,25 @@
+snippet php-pre-commit "git pre-commit file for php" b
+#!/usr/bin/env php
+<?php
+
+exec('git diff HEAD --name-only --diff-filter=AMRC', $filenames);
+
+$filenames = array_filter($filenames, function($filename) {
+	return pathinfo($filename, PATHINFO_EXTENSION) === 'php';
+});
+
+$exitCode = 0;
+foreach ($filenames as &$filename) {
+	$filename = escapeshellarg($filename);
+
+	exec("php -l $filename", $output, $lintExitCode);
+	if (0 !== $lintExitCode) {
+		$exitCode = 1;
+	}
+
+}
+
+system("php-cs-fixer fix; git add .");
+
+exit($exitCode);
+endsnippet
