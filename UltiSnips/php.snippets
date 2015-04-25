@@ -179,7 +179,7 @@ public function newAction(Request $request)
 		$em->persist($$3);
 		$em->flush();
 
-		return $this->redirect($this->generateUrl('$1_edit', ['id' => $$3->getId()]));
+		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]));
 	}
 
 	return $this->render('$0`!p controller(snip, True)`/new.html.twig', [
@@ -206,7 +206,7 @@ public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:
 		$em = $this->get('doctrine.orm.entity_manager');
 		$em->flush();
 
-		return $this->redirect($this->generateUrl('$1_edit', ['id' => $$3->getId()]));
+		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]));
 	}
 
 	return $this->render('$0`!p controller(snip, True)`/edit.html.twig', [
