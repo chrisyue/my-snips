@@ -159,7 +159,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class `!p snip.rv = snip.basename` extends Controller
 {
-    $0
+	$0
 }
 endsnippet
 
@@ -179,11 +179,10 @@ public function newAction(Request $request)
 		$em->persist($$3);
 		$em->flush();
 
-		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]));
+		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
 
 	return $this->render('$0`!p controller(snip, True)`/new.html.twig', [
-		'$3' => $$3,
 		'form' => $form->createView(),
 	]);
 }$0
@@ -206,7 +205,7 @@ public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:
 		$em = $this->get('doctrine.orm.entity_manager');
 		$em->flush();
 
-		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]));
+		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
 
 	return $this->render('$0`!p controller(snip, True)`/edit.html.twig', [
@@ -233,7 +232,7 @@ public function deleteAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][
 		$em->flush();
 	}
 
-	return $this->redirect($this->generateUrl('$1'));
+	return $this->redirect($this->generateUrl('$1_index'));
 }
 
 /**
@@ -421,7 +420,7 @@ namespace `!p namespace(snip, path)`;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class `!p snip.rv = snip.basename` extends AbstractType
 {
@@ -435,11 +434,11 @@ class `!p snip.rv = snip.basename` extends AbstractType
 			->add('$0')
 		;
 	}
-    
+	
 	/**
 	 * @param OptionsResolverInterface $resolver
 	 */
-	public function configureOptions(OptionsResolverInterface $resolver)
+	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
 			'data_class' => ''
@@ -528,30 +527,62 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class `!p snip.rv = snip.basename` implements SimpleFormAuthenticatorInterface
 {
-    public function createToken(Request $request, $username, $password, $providerKey)
-    {
-        return new UsernamePasswordToken($username, $password, $providerKey);
-    }
+	public function createToken(Request $request, $username, $password, $providerKey)
+	{
+		return new UsernamePasswordToken($username, $password, $providerKey);
+	}
 
-    public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
-    {
-        try {
-            $user = $userProvider->loadUserByUsername($token->getUsername());
-        } catch (UsernameNotFoundException $e) {
-            throw new AuthenticationException('Invalid username or password');
-        }
+	public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
+	{
+		try {
+			$user = $userProvider->loadUserByUsername($token->getUsername());
+		} catch (UsernameNotFoundException $e) {
+			throw new AuthenticationException('Invalid username or password');
+		}
 
-        if ($user->getPassword() === $token->getCredentials()) {
-            return new UsernamePasswordToken($user, $user->getPassword(), $providerKey, $user->getRoles());
-        }
+		if ($user->getPassword() === $token->getCredentials()) {
+			return new UsernamePasswordToken($user, $user->getPassword(), $providerKey, $user->getRoles());
+		}
 
-        throw new AuthenticationException('Invalid username or password');
-    }
+		throw new AuthenticationException('Invalid username or password');
+	}
 
-    public function supportsToken(TokenInterface $token, $providerKey)
-    {
-        return $token instanceof UsernamePasswordToken && $token->getProviderKey() === $providerKey;
-    }
+	public function supportsToken(TokenInterface $token, $providerKey)
+	{
+		return $token instanceof UsernamePasswordToken && $token->getProviderKey() === $providerKey;
+	}
+}
+endsnippet
+
+snippet userprovider "Symfony2 User Provider" b
+<?php
+
+namespace `!p namespace(snip, path)`;
+
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+
+class `!p snip.rv = snip.basename` implements UserProviderInterface
+{
+	public function loadUserByUsername($username)
+	{
+		return new $1($username);
+	}
+
+	public function refreshUser(UserInterface $user)
+	{
+		if (!$this->supportsClass(get_class($user))) {
+			throw new UnsupportedUserException(':(');
+		}
+
+		return $user;
+	}
+
+	public function supportsClass($class)
+	{
+		return '$2' === $class;
+	}
 }
 endsnippet
 
