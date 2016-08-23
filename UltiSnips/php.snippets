@@ -179,6 +179,8 @@ public function newAction(Request $request)
 		$em->persist($$3);
 		$em->flush();
 
+		$this->addFlash('success', 'New entry added!')
+
 		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
 
@@ -195,15 +197,15 @@ snippet editact "Symfony2 CRUD Controller Edit Action" b
 public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`}, Request $request)
 {
 	$editForm = $this->createForm(new $2Type(), $$3, [
-		'action' => $this->generateUrl('$1_edit', ['id' => $$3->getId()]),
 		'method' => 'PUT',
 	]);
 	$deleteForm = $this->createDeleteForm($$3->getId());
 
 	$editForm->handleRequest($request);
 	if ($editForm->isValid()) {
-		$em = $this->get('doctrine.orm.entity_manager');
-		$em->flush();
+		$em = $this->get('doctrine.orm.entity_manager')->flush();
+
+		$this->addFlash('success', 'Entry updated!')
 
 		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
@@ -230,9 +232,15 @@ public function deleteAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][
 
 		$em->remove($$3);
 		$em->flush();
+
+		$this->addFlash('success', 'Entry removed!');
+
+		return $this->redirectToRoute('$1_index');
 	}
 
-	return $this->redirect($this->generateUrl('$1_index'));
+	$this->addFlash('danger', 'Entry remove failed!');
+
+	return $this->redirectToRoute('$1_index');
 }
 
 /**
@@ -243,7 +251,7 @@ public function deleteAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][
 private function createDeleteForm($id)
 {
 	return $this->createFormBuilder()
-		->setAction($this->generateUrl('$1_delete', ['id' => $id]))
+		->setAction($this->generateUrl('$1_delete', compact('id')))
 		->setMethod('DELETE')
 		->getForm()
 	;
