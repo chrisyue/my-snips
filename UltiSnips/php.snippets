@@ -169,7 +169,7 @@ snippet newact "Symfony2 CRUD Controller New Action" b
  */
 public function newAction(Request $request)
 {
-	$form = $this->createForm(new ${2:`!p controller(snip)`}Type());
+	$form = $this->createForm(${2:`!p controller(snip)`}Type::class);
 
 	$form->handleRequest($request);
 	if ($form->isValid()) {
@@ -196,7 +196,7 @@ snippet editact "Symfony2 CRUD Controller Edit Action" b
  */
 public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`}, Request $request)
 {
-	$editForm = $this->createForm(new $2Type(), $$3, [
+	$editForm = $this->createForm($2Type::class, $$3, [
 		'method' => 'PUT',
 	]);
 	$deleteForm = $this->createDeleteForm($$3->getId());
