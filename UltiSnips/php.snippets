@@ -179,7 +179,7 @@ public function newAction(Request $request)
 		$em->persist($$3);
 		$em->flush();
 
-		$this->addFlash('success', 'New entry added!')
+		$this->addFlash('success', 'New entry added!');
 
 		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
@@ -205,7 +205,7 @@ public function editAction(${2:`!p controller(snip)`} $${3:`!p snip.rv = t[2][0:
 	if ($editForm->isValid()) {
 		$em = $this->get('doctrine.orm.entity_manager')->flush();
 
-		$this->addFlash('success', 'Entry updated!')
+		$this->addFlash('success', 'Entry updated!');
 
 		return $this->redirectToRoute('$1_edit', ['id' => $$3->getId()]);
 	}
