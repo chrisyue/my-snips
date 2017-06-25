@@ -1,0 +1,336 @@
+global !p
+from php_snippets_helper import *
+endglobal
+
+snippet c "Symfony Controller" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+
+/**
+ * @Route("`!p snip.rv = controller_slug(snip) `", requirements={"id"="\d+"})
+ */
+class `!p snip.rv = snip.basename`
+{
+	$0
+}
+endsnippet
+
+snippet na "Symfony CRUD Controller New Action" b
+/**
+ * @Route("/new", methods={"GET", "POST"})
+ */
+public function newAction(
+	Request $request,
+	EntityManagerInterface $em,
+	UrlGeneratorInterface $router,
+	EngineInterface $tplEngine
+) {
+	$form = $this->createForm(${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `}Type::class);
+	$form->handleRequest($request);
+
+	if ($form->isValid()) {
+		$${2:`!p snip.rv = t[1][0:1].lower() + t[1][1:]`} = $form->getData();
+
+		$em->persist($$2);
+		$em->flush();
+
+		return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_edit', ['id' => $$2->getId()]));
+	}
+
+	return $tplEngine->renderResponse('`!p snip.rv = controller_tpl_prefix(path)`/new.html.twig', [
+		'form' => $form->createView(),
+	]);
+}$0
+endsnippet
+
+snippet ea "Symfony CRUD Controller Edit Action" b
+/**
+ * @Route("/{id}/edit", methods={"GET", "PUT"})
+ */
+public function editAction(
+	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[1][0:1].lower() + t[2][1:]`},
+	Request $request,
+	EntityManagerInterface $em,
+	UrlGeneratorInterface $router,
+	EngineInterface $tplEngine,
+	FormFactoryInterface $formFactory
+) {
+	$editForm = $formFactory->create($1Type::class, $$2, [
+		'method' => 'PUT',
+	]);
+	$deleteForm = $this->createDeleteForm($$2->getId());
+
+	$editForm->handleRequest($request);
+	if ($editForm->isValid()) {
+		$em->flush();
+
+		return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_edit', ['id' => $$2->getId()]);
+	}
+
+	return $tplEngine->renderResponse('$0`!p snip.rv = controller_tpl_prefix(path) `/edit.html.twig', [
+		'$2' => $$2,
+		'editForm' => $editForm->createView(),
+		'deleteForm' => $deleteForm->createView(),
+	]);
+}
+endsnippet
+
+snippet da "Symfony2 CRUD Controller Delete Action" b
+/**
+ * @Route("/{id}", methods={"DELETE"})
+ */
+public function deleteAction(
+	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`},
+	Request $request,
+	EntityManagerInterface $em,
+	UrlGeneratorInterface $router,
+	FormFactoryInterface $formFactory
+) {
+	$form = $this->createDeleteForm($$2->getId());
+	$form->handleRequest($request);
+
+	if ($form->isValid()) {
+		$em->remove($$2);
+		$em->flush();
+	}
+
+	return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_index'));
+}
+endsnippet
+
+snippet a "Symfony action" b
+/**
+ * @Route("${3}", methods={"${4:GET}"})
+ */
+public function ${1}Action(${2})
+{
+	$0
+}
+endsnippet
+
+snippet comm "Symfony command" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+
+class `!p snip.rv = snip.basename` extends ContainerAwareCommand
+{
+	protected function configure()
+	{
+		$this->setName('${1}')
+			->setDescription('${2}')
+			->setDefinition([
+				new InputArgument('', InputArgument::REQUIRED, ''),
+				new InputOption('', null, InputOption::VALUE_NONE, ''),
+			]);
+	}
+
+	protected function execute(InputInterface $input, OutputInterface $output)
+	{
+	}
+}
+endsnippet
+
+snippet s "Symfony subscriber" b
+namespace `!p snip.rv = namespace(snip, path)`;
+
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class `!p snip.rv = snip.basename` implements EventSubscriberInterface
+{
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getSubscribedEvents()
+	{
+		return [];
+	}
+}
+endsnippet
+
+snippet t "Symfony2 form data transformer" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\Exception\TransformationFailedException;
+
+class `!p snip.rv = snip.basename` implements DataTransformerInterface
+{
+	/**
+	 * {@inheritDoc}
+	 */
+	public function transform(${1})
+	{
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function reverseTransform(${2})
+	{
+	}
+}
+endsnippet
+
+snippet ev "Symfony2 event" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Symfony\Component\EventDispatcher\Event;
+
+class `!p snip.rv = snip.basename` extends Event
+{
+}
+endsnippet
+
+snippet m "Symfony2 Menu Builder" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Knp\Menu\FactoryInterface;
+
+class `!p snip.rv = snip.basename`
+{
+	public function topNav(FactoryInterface $factory, array $options)
+	{
+		$menu = $factory->createItem('root', [
+			'childrenAttributes' => [
+				'class' => 'nav navbar-nav',
+			],
+		]);
+
+		$menu->addChild('home', [
+			'route' => 'home',
+			'label' => '首页',
+		]);$0
+
+		return $menu;
+	}
+}
+endsnippet
+
+snippet f "Symfony2 Form Type" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class `!p snip.rv = snip.basename` extends AbstractType
+{
+	/**
+	 * @param FormBuilderInterface $builder
+	 * @param array $options
+	 */
+	public function buildForm(FormBuilderInterface $builder, array $options)
+	{
+		$builder
+			->add('$0')
+		;
+	}
+	
+	/**
+	 * @param OptionsResolverInterface $resolver
+	 */
+	public function configureOptions(OptionsResolver $resolver)
+	{
+		$resolver->setDefaults([
+			'data_class' => '',
+		]);
+	}
+}
+endsnippet
+
+snippet up "Symfony2 User Provider" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+
+class `!p snip.rv = snip.basename` implements UserProviderInterface
+{
+	public function loadUserByUsername($username)
+	{
+	}
+
+	public function refreshUser(UserInterface $user)
+	{
+		if (!$this->supportsClass(get_class($user))) {
+			throw new UnsupportedUserException(':(');
+		}
+
+		return $user;
+	}
+
+	public function supportsClass($class)
+	{
+		return $1 === $class;
+	}
+}
+endsnippet
+
+snippet e "Doctrine ORM Entity" b
+<?php
+
+namespace `!p snip.rv = namespace(path)`;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity()
+ * @ORM\Table()
+ */
+class `!p snip.rv = snip.basename`
+{
+	/**
+	 * @var integer
+	 *
+	 * @ORM\Column(name="id", type="integer")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	private $id;
+
+	$0
+}
+endsnippet
+
+snippet opp "Doctrine ORM PrePersist" b
+/**
+ * @ORM\PrePersist
+ */
+public function prePersist(LifecycleEventArgs $event)
+{
+	$0
+}
+endsnippet
+
+snippet opu "Doctrine ORM PreUpdate" b
+/**
+ * @ORM\PreUpdate
+ */
+public function preUpdate(PreUpdateEventArgs $event)
+{
+	if ($event->hasChangedField('$1')) {
+		$0
+	}
+}
+endsnippet

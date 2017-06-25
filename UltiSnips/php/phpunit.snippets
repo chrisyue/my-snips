@@ -1,0 +1,26 @@
+global !p
+from php_snippets_helper import *
+endglobal
+
+snippet test "phpunit test class" b
+<?php
+
+namespace `!p namespace(path, snip)`;
+
+use PHPUnit\Framework\TestCase;
+
+class `!p snip.rv = snip.basename` extends TestCase
+{
+	public function test$1()
+	{
+		$0
+	}
+}
+endsnippet
+
+snippet exp "phpunit expects" i
+expects($this->${1:once}())
+	->method('$2')
+	->with($this->equalTo($3)$4)
+	->will($this->returnValue($0));
+endsnippet
