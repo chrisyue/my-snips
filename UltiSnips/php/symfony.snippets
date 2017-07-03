@@ -26,12 +26,13 @@ public function newAction(
 	Request $request,
 	EntityManagerInterface $em,
 	UrlGeneratorInterface $router,
-	EngineInterface $tplEngine
+	EngineInterface $tplEngine,
+	FormFactoryInterface $formFactory
 ) {
-	$form = $this->createForm(${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `}Type::class);
+	$form = $formFactory->create(${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `}Type::class);
 	$form->handleRequest($request);
 
-	if ($form->isValid()) {
+	if ($form->isSubmitted() && $form->isValid()) {
 		$${2:`!p snip.rv = t[1][0:1].lower() + t[1][1:]`} = $form->getData();
 
 		$em->persist($$2);
@@ -51,7 +52,7 @@ snippet ea "Symfony CRUD Controller Edit Action" b
  * @Route("/{id}/edit", methods={"GET", "PUT"})
  */
 public function editAction(
-	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[1][0:1].lower() + t[2][1:]`},
+	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[1][0:1].lower() + t[1][1:]`},
 	Request $request,
 	EntityManagerInterface $em,
 	UrlGeneratorInterface $router,
@@ -61,14 +62,17 @@ public function editAction(
 	$editForm = $formFactory->create($1Type::class, $$2, [
 		'method' => 'PUT',
 	]);
-	$deleteForm = $this->createDeleteForm($$2->getId());
 
 	$editForm->handleRequest($request);
-	if ($editForm->isValid()) {
+	if ($editForm->isSubmitted() && $editForm->isValid()) {
 		$em->flush();
 
-		return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_edit', ['id' => $$2->getId()]);
+		return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_edit', ['id' => $$2->getId()]));
 	}
+
+	$deleteForm = $this->createDeleteForm($formFactory, $router->generate(
+		'`!p snip.rv = controller_route_prefix(path) `_delete', ['id' => $$2->getId()]
+	));
 
 	return $tplEngine->renderResponse('$0`!p snip.rv = controller_tpl_prefix(path) `/edit.html.twig', [
 		'$2' => $$2,
@@ -83,31 +87,55 @@ snippet da "Symfony2 CRUD Controller Delete Action" b
  * @Route("/{id}", methods={"DELETE"})
  */
 public function deleteAction(
-	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[2][0:1].lower() + t[2][1:]`},
+	${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[1][0:1].lower() + t[1][1:]`},
 	Request $request,
 	EntityManagerInterface $em,
 	UrlGeneratorInterface $router,
 	FormFactoryInterface $formFactory
 ) {
-	$form = $this->createDeleteForm($$2->getId());
+	$form = $this->createDeleteForm($formFactory);
 	$form->handleRequest($request);
 
-	if ($form->isValid()) {
+	if ($form->isSubmitted() && $form->isValid()) {
 		$em->remove($$2);
 		$em->flush();
 	}
 
 	return new RedirectResponse($router->generate('`!p snip.rv = controller_route_prefix(path) `_index'));
 }
+
+private function createDeleteForm(FormFactoryInterface $formFactory, $url = null)
+{
+	$builder = $formFactory->createBuilder(FormType::class)->setMethod('DELETE');
+	if (null !== $url) {
+		$builder->setAction($url);
+	}
+
+	return $builder->getForm();
+}
+endsnippet
+
+snippet sa "Symfony CRUD controller show action" b
+/**
+ * @Route("/$id", methods={"${4:GET}"})
+ */
+public function showAction(${1:`!p snip.rv = snip.basename.rsplit('Controller')[0] `} $${2:`!p snip.rv = t[1][0:1].lower() + t[1][1:] `}, EngineInterface $tplEngine)
+{
+	$0
+
+	return $tplEngine->renderResponse('`!p snip.rv = controller_tpl_prefix(path) `/show.html.twig');
+}
 endsnippet
 
 snippet a "Symfony action" b
 /**
- * @Route("${3}", methods={"${4:GET}"})
+ * @Route("${2}", methods={"${4:GET}"})
  */
-public function ${1}Action(${2})
+public function ${1}Action(EngineInterface $tplEngine, EntityManagerInterface $em)
 {
 	$0
+
+	return $tplEngine->renderResponse('`!p snip.rv = controller_tpl_prefix(path) + '/' + t[1]`.html.twig');
 }
 endsnippet
 
@@ -140,8 +168,8 @@ class `!p snip.rv = snip.basename` extends ContainerAwareCommand
 }
 endsnippet
 
-snippet s "Symfony subscriber" b
-namespace `!p snip.rv = namespace(snip, path)`;
+snippet sub "Symfony subscriber" b
+namespace `!p snip.rv = namespace(path, snip)`;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -250,10 +278,14 @@ class `!p snip.rv = snip.basename` extends AbstractType
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
-			'data_class' => '',
+			'data_class' => `!p snip.rv = snip.basename.rsplit('Type')[0]`::class,
 		]);
 	}
 }
+endsnippet
+
+snippet $=f "$foo = $form->get('foo')->getData();" b
+$$1 = $form->get('$1')->getData();$0
 endsnippet
 
 snippet up "Symfony2 User Provider" b
@@ -301,9 +333,9 @@ use Doctrine\ORM\Mapping as ORM;
 class `!p snip.rv = snip.basename`
 {
 	/**
-	 * @var integer
+	 * @var int
 	 *
-	 * @ORM\Column(name="id", type="integer")
+	 * @ORM\Column(type="integer")
 	 * @ORM\Id
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
@@ -311,6 +343,14 @@ class `!p snip.rv = snip.basename`
 
 	$0
 }
+endsnippet
+
+snippet @oc "Doctrine @ORM\Column"
+@ORM\Column(type="${1:string}"$0)
+endsnippet
+
+snippet @oi "Doctrine indexes=@ORM\Index"
+indexes={@ORM\Index(name="$1", columns={"`!p snip.rv = t[1].replace('_', '", "') `"})}
 endsnippet
 
 snippet opp "Doctrine ORM PrePersist" b

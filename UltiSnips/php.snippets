@@ -46,7 +46,7 @@ snip.rv = snip.basename
 endsnippet
 
 snippet __ "__constructor" b
-${1:public} function __construct($1)
+${1:public} function __construct($2)
 {
 	$0
 }
@@ -56,14 +56,19 @@ snippet sg "Setter/Getter" b
 /**
  * @var ${3:`!p snip.rv = t[2][0:1].upper() + t[2][1:]`}
  * 
- * ${4}
+ * ${0}
  */
 ${1:private} $$2;
 
+/**
+ * @param $3
+ *
+ * @return self
+ */
 public function set`!p
 snip.rv = t[2][0:1].upper() + t[2][1:]
 `(`!p
-if re.match(r'^(\\|[A-Z]).*', t[3]): snip.rv = t[3] + ' '
+snip.rv = t[3] + ' ' if re.match(r'^\\|[A-Z]', t[3]) else ''
 `$$2)
 {
 	$this->$2 = $$2;
@@ -71,10 +76,24 @@ if re.match(r'^(\\|[A-Z]).*', t[3]): snip.rv = t[3] + ' '
 	return $this;
 }
 
+/**
+ * @return $3
+ */
 public function get`!p snip.rv = t[2][0:1].upper() + t[2][1:]`()
 {
 	return $this->$2;
 }
+endsnippet
+
+snippet g "Getter" b
+public function get`!p snip.rv = t[1][0:1].upper() + t[1][1:]`()
+{
+	return $this->$1;
+}
+endsnippet
+
+snippet $t= "$this->foo = $foo" b
+$this->$1 = $$1;$0
 endsnippet
 
 snippet /** "php comment block" b
@@ -116,13 +135,13 @@ for ($i = 0; $i < $1; ++$i) {
 }
 endsnippet
 
-snippet for "fore" b
+snippet fore "foreach" b
 foreach ($1 as $$2) {
 	$0
 }
 endsnippet
 
-snippet for "forek" b
+snippet forek "foreach key => val" b
 foreach ($1 as $$2 => $$3) {
 	$0
 }
