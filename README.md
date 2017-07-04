@@ -1,17 +1,31 @@
 # my-snips
 
-My snippets for Ultisnips
+My snippets for Ultisnips, mainly for languages of web development, like
+PHP, HTML, CSS, SASS, .etc.
 
-On the giant of UltiSnips, these snippets can auto-detect namespace, or tell if a class is an abstract class or a interface
+Also I am a fan of Symfony, so there are many snips about Symfony, Doctrine
+, Twig, .etc.
 
-![controller action](http://chrisyue-blog.qiniudn.com/controller-action.gif)
+With the Python power integrated into Ultisnips, my-snips can auto generate
+complex code snippets, like generating namespace according to the filepath
+or `composer.json`, or auto generating class, abstract class, interface or
+trait according to the file name.
 
-Please check those [snippet files](https://github.com/chrisyue/my-snips/tree/master/UltiSnips) to see more details
+Please check the
+[snippet files](https://github.com/chrisyue/my-snips/tree/master/UltiSnips)
+to get more details
+
+![namespace and class](http://chrisyue-blog.qiniudn.com/nc-abstract.gif "namespace and class")
 
 # installation
 
-This assumes you are using [Vundle](https://github.com/gmarik/Vundle.vim) and [UltiSnips](https://github.com/SirVer/ultisnips).  Put the code below into your `.vimrc`
+Assuming you are using [Vundle](https://github.com/gmarik/Vundle.vim), or
+[vim-plugin](https://github.com/junegunn/vim-plug), Put the code below into
+your `.vimrc`:
 
 ```
 Plugin 'chrisyue/my-snippets'
+"Or Plug 'chrisyue/my-snippets' if vim-plugin is used
 ```
+
+then run `:PluginInstall`, or `:PlugInstall` if vim-plugin is used.
