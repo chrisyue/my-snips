@@ -4,7 +4,7 @@ import re
 import json
 
 def namespace(path):
-    m = re.search(r'(?<=/)[A-Z]\w+(/[A-Z]\w+)+(?=/[^/]+$)', path)
+    m = re.search(r'(?<=/)[A-Z]\w+(/[A-Z]\w+)*(?=/[^/]+$)', path)
 
     ns = m.group().replace('/', '\\') if m else ''
     if not os.path.isfile('composer.json'):
