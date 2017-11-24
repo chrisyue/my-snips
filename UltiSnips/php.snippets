@@ -129,6 +129,14 @@ private function $1($2)
 }
 endsnippet
 
+snippet apub "abtract public function" b
+abstract public function $1($2);
+endsnippet
+
+snippet apro "abstract protected function" b
+abstract protected function $1($2);
+endsnippet
+
 snippet if "if" b
 if ($1) {
 	$0
@@ -150,5 +158,12 @@ endsnippet
 snippet forek "foreach key => val" b
 foreach ($1 as $$2 => $$3) {
 	$0
+}
+endsnippet
+
+snippet try "try catch" b
+try {
+	$0
+} catch (\Exception $ex) {
 }
 endsnippet
