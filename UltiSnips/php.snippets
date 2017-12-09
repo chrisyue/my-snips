@@ -79,7 +79,7 @@ snip.rv = t[3] + ' ' if re.match(r'^\\|[A-Z]', t[3]) else ''
 /**
  * @return $3
  */
-public function get`!p snip.rv = t[2][0:1].upper() + t[2][1:]`()
+public function `!p snip.rv = 'is' if t[3][0:4] == 'bool' else 'get'``!p snip.rv = t[2][0:1].upper() + t[2][1:]`()
 {
 	return $this->$2;
 }
@@ -96,13 +96,13 @@ snippet $t= "$this->foo = $foo" b
 $this->$1 = $$1;$0
 endsnippet
 
-snippet /** "php comment block" b
+snippet /** "comment block" b
 /**
  * $0
  */
 endsnippet
 
-snippet @in "php inheritdoc" b
+snippet @in "inheritdoc" b
 /**
  * {@inheritdoc}
  */
