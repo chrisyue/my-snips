@@ -12,18 +12,18 @@ def namespace(path):
 
     with open('composer.json') as json_file:
         data = json.load(json_file)
-        if not ('autoload' in data) and not ('autoload-dev' in data):
-            return ns
 
-        psr4 = data['autoload']['psr-4']
-        for key in psr4:
-            if psr4[key] in path:
-                return (key + ns).strip('\\')
+        if ('autoload' in data) and ('psr-4' in data['autoload']):
+            psr4 = data['autoload']['psr-4']
+            for key in psr4:
+                if psr4[key] in path:
+                    return (key + ns).strip('\\')
 
-        psr4 = data['autoload-dev']['psr-4']
-        for key in psr4:
-            if psr4[key] in path:
-                return (key + ns).strip('\\')
+        if ('autoload-dev' in data) and ('psr-4' in data['autoload-dev']):
+            psr4 = data['autoload-dev']['psr-4']
+            for key in psr4:
+                if psr4[key] in path:
+                    return (key + ns).strip('\\')
 
     return ns
 

@@ -33,7 +33,7 @@ if 'Abstract' in snip.basename: snip.rv = 'abstract '
 ``!p
 if 'Interface' in snip.basename:
 	snip.rv = 'interface'
-elif 'Trait' in snip.basename:
+elif re.search(r'Trait$', snip.basename):
 	snip.rv = 'trait'
 else:
 	snip.rv = 'class'
@@ -158,6 +158,6 @@ endsnippet
 snippet try "try catch" b
 try {
 	$0
-} catch (\Exception $ex) {
+} catch (\Throwable $ex) {
 }
 endsnippet
