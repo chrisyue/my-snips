@@ -15,7 +15,7 @@ Please check the
 [snippet files](https://github.com/chrisyue/my-snips/tree/master/UltiSnips)
 to get more details
 
-![namespace and class](http://chrisyue-blog.qiniudn.com/nc-abstract.gif "namespace and class")
+![namespace and class](http://img.chrisyue.com/nc-class.gif "namespace and class")
 
 # installation
 
