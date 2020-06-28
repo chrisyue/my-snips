@@ -8,8 +8,8 @@ Also I am a fan of Symfony, so there are many snips about Symfony, Doctrine
 
 With the Python power integrated into Ultisnips, my-snips can auto generate
 complex code snippets, like generating namespace according to the filepath
-or `composer.json`, or auto generating class, abstract class, interface or
-trait according to the file name.
+or `composer.json`'s `psr-4` information, or auto generating class, abstract
+class, interface or trait according to the file name.
 
 Please check the
 [snippet files](https://github.com/chrisyue/my-snips/tree/master/UltiSnips)
